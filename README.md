@@ -1,6 +1,6 @@
 # GreenLight API
 
-### project structure
+### Project Structure
 - The `bin` directory will contain our compiled application binaries, ready for deployment
 to a production server.
 - The `cmd/api` directory will contain the application-specific code for our Greenlight API
@@ -17,3 +17,19 @@ production server.
 - The `go.mod` file will declare our project dependencies, versions and module path.
 The Makefile will contain recipes for automating common administrative tasks — like
 auditing our Go code, building binaries, and executing database migrations.
+
+### Route
+
+| URL Pattern     | Handler            | Action                       |
+|-----------------|--------------------|------------------------------|
+| /v1/healthcheck | healthcheckHandler | Show application information |
+
+### CMD
+Run Project
+```shell
+$ go run ./cmd/api
+```
+```shell
+# with port and environment 
+$ go run ./cmd/api -port=3030 -env=production
+```
