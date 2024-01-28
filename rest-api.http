@@ -1,4 +1,4 @@
-OPTIONS http://localhost:4000/v1/healthcheck
+GET http://localhost:4000/v1/healthcheck
 
 ###
 
