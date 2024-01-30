@@ -1,25 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"greenlight.inthava.me/internal/data"
+	"greenlight.inthava.me/internal/validator"
 	"net/http"
 	"time"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
-		Tittle  string   `json:"tittle"`
-		Year    int32    `json:"year"`
-		Runtime int32    `json:"runtime"`
-		Genres  []string `json:"genres"`
+		Title   string       `json:"title"`
+		Year    int32        `json:"year"`
+		Runtime data.Runtime `json:"runtime"`
+		Genres  []string     `json:"genres"`
 	}
-	err := json.NewDecoder(r.Body).Decode(&input)
+	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 		return
+	}
 
+	movie := &data.Movie{Title: input.Title, Year: input.Year, Runtime: input.Runtime, Genres: input.Genres}
+
+	v := validator.New()
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 	fmt.Fprintf(w, "%+v\n", input)
 }
