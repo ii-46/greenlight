@@ -21,14 +21,29 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	movie := &data.Movie{Title: input.Title, Year: input.Year, Runtime: input.Runtime, Genres: input.Genres}
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
 
 	v := validator.New()
 	if data.ValidateMovie(v, movie); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.models.Movies.Insert(movie)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	header := make(http.Header)
+	header.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
+	err = app.writeJSON(w, http.StatusCreated, envelop{"movie": movie}, header)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
