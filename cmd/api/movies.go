@@ -97,6 +97,7 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
+		return
 	}
 	movie.Title = input.Title
 	movie.Year = input.Year
