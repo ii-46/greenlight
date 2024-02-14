@@ -6,6 +6,7 @@ import (
 	"greenlight.inthava.me/internal/data"
 	"greenlight.inthava.me/internal/validator"
 	"net/http"
+	"strconv"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -88,6 +89,14 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		}
 		return
 	}
+
+	if r.Header.Get("X-Expected-Version") != "" {
+		if strconv.FormatInt(int64(movie.Version), 32) != r.Header.Get("X-Expected-Version") {
+			app.editConflictResponse(w, r)
+			return
+		}
+	}
+
 	var input struct {
 		Title   *string       `json:"title"`
 		Year    *int32        `json:"year"`
