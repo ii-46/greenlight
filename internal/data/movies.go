@@ -133,7 +133,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		return nil, err
 	}
 	defer rows.Close()
-	movies := []*Movie{}
+	var movies []*Movie
 	for rows.Next() {
 		var movie Movie
 		err := rows.Scan(&movie.ID, &movie.CreatedAt, &movie.Title, &movie.Year, &movie.Runtime, pq.Array(&movie.Genres), &movie.Version)
