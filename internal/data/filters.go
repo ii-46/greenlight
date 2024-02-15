@@ -1,6 +1,9 @@
 package data
 
-import "greenlight.inthava.me/internal/validator"
+import (
+	"greenlight.inthava.me/internal/validator"
+	"strings"
+)
 
 type Filters struct {
 	Page         int
@@ -15,4 +18,23 @@ func ValidateFilters(v *validator.Validator, f Filters) {
 	v.Check(f.PageSize > 0, "page_size", "must be greater than zero")
 	v.Check(f.PageSize <= 100, "page_size", "must be a maximum of 100")
 	v.Check(validator.In(f.Sort, f.SortSafeList...), "sort", "invalid sort value")
+}
+
+func (f Filters) sortColumn() string {
+	for _, safeValue := range f.SortSafeList {
+		if f.Sort == safeValue {
+			return strings.Trim(f.Sort, "-")
+		}
+	}
+	// the Sort value should have already been checked by calling the
+	// ValidateFilters() function — but this is a sensible failsafe to help stop a SQL injection
+	// attack occurring.
+	panic("unsafe sort parameter:" + f.Sort)
+}
+
+func (f Filters) sortDirection() string {
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
 }
