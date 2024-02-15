@@ -123,7 +123,7 @@ func (m MovieModel) Delete(id int64) error {
 
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 	// COUNT BUT IT COUNT ALL ROWS INCLUDE FILTERED ROWS
-	query := fmt.Sprintf(`SELECT COUNT(*) OVER(),id, created_at, title, year, runtime, genres, version
+	query := fmt.Sprintf(`SELECT id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') AND (genres @> $2 OR $2 = '{}')
 		ORDER BY %s %s, id ASC
@@ -142,12 +142,10 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		return nil, Metadata{}, err
 	}
 	defer rows.Close()
-	var totalRecords int
 	var movies []*Movie
 	for rows.Next() {
 		var movie Movie
 		err := rows.Scan(
-			&totalRecords,
 			&movie.ID,
 			&movie.CreatedAt,
 			&movie.Title,
@@ -170,6 +168,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		movies = []*Movie{}
 	}
 
+	totalRecords := len(movies)
 	metadata := calculateMetaData(totalRecords, filters.Page, filters.PageSize)
 	return movies, metadata, nil
 }
