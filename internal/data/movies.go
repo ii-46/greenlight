@@ -122,6 +122,7 @@ func (m MovieModel) Delete(id int64) error {
 }
 
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
+	// COUNT BUT IT COUNT ALL ROWS INCLUDE FILTERED ROWS
 	query := fmt.Sprintf(`SELECT COUNT(*) OVER(),id, created_at, title, year, runtime, genres, version
 		FROM movies
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '') AND (genres @> $2 OR $2 = '{}')
