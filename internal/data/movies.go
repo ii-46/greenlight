@@ -153,5 +153,11 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
+
+	if len(movies) == 0 {
+		// if not server will return null in writeJSONResponse
+		movies = []*Movie{}
+	}
+
 	return movies, nil
 }
