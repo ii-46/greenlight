@@ -33,7 +33,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	err = app.models.User.Insert(user)
+	err = app.models.Users.Insert(user)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrDuplicatedEmail):
@@ -81,7 +81,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	user, err := app.models.User.GetForToken(data.ScopeActivation, input.Plaintext)
+	user, err := app.models.Users.GetForToken(data.ScopeActivation, input.Plaintext)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
@@ -93,7 +93,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	user.Activated = true
-	err = app.models.User.Update(user)
+	err = app.models.Users.Update(user)
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrEditConflict):
